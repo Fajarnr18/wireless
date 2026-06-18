@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Aplikasi modern dengan burger menu, tab bar, top app bar, dan card interaktif">
+<title>Nusantara App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --clr-bg:#F7F6F3;
+    --clr-surface:#FFFFFF;
+    --clr-surface2:#F0EEE9;
+    --clr-primary:#1A5F4A;
+    --clr-primary-light:#E4F2EC;
+    --clr-primary-mid:#2E8B63;
+    --clr-accent:#E07A3A;
+    --clr-accent-light:#FAF0E6;
+    --clr-text:#1C1C1C;
+    --clr-text2:#5A5A5A;
+    --clr-text3:#9A9A9A;
+    --clr-border:#E2E0DB;
+    --clr-danger:#C0392B;
+    --clr-danger-light:#FDECEA;
+    --clr-success:#1A7A4A;
+    --clr-success-light:#E4F5EC;
+    --clr-overlay:rgba(0,0,0,0.45);
+    --radius-sm:8px;
+    --radius-md:12px;
+    --radius-lg:16px;
+    --radius-xl:20px;
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md:0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg:0 8px 32px rgba(0,0,0,0.14);
+    --font:'Plus Jakarta Sans',system-ui,sans-serif;
+    --top-bar:60px;
+    --bottom-bar:68px;
+    --drawer-width:280px;
+    --transition:0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --clr-bg:#111210;
+      --clr-surface:#1E1F1C;
+      --clr-surface2:#2A2B28;
+      --clr-primary:#3DBB82;
+      --clr-primary-light:#0E2B1E;
+      --clr-primary-mid:#2E8B63;
+      --clr-accent:#F09050;
+      --clr-accent-light:#2B1A0C;
+      --clr-text:#EEECEA;
+      --clr-text2:#A8A69F;
+      --clr-text3:#666460;
+      --clr-border:#333330;
+      --clr-danger:#E05050;
+      --clr-danger-light:#2A1010;
+      --clr-success:#3DBB82;
+      --clr-success-light:#0E2B1E;
+    }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  }
+
+  body{
+    font-family:var(--font);
+    background:var(--clr-bg);
+    color:var(--clr-text);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ── TOP APP BAR ── */
+  .top-bar{
+    position:fixed;top:0;left:0;right:0;
+    height:var(--top-bar);
+    background:var(--clr-surface);
+    border-bottom:1px solid var(--clr-border);
+    display:flex;align-items:center;gap:8px;
+    padding:0 12px;
+    z-index:100;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .icon-btn{
+    width:40px;height:40px;border-radius:50%;
+    border:none;background:transparent;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--clr-text2);
+    transition:background var(--transition),color var(--transition),transform 0.15s;
+    font-size:22px;flex-shrink:0;
+    position:relative;
+  }
+  .icon-btn:hover{background:var(--clr-surface2);color:var(--clr-text)}
+  .icon-btn:active{transform:scale(0.92)}
+  .icon-btn svg{pointer-events:none}
+  .top-bar-title{
+    flex:1;font-size:17px;font-weight:600;
+    color:var(--clr-text);letter-spacing:-0.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .top-bar-logo{
+    width:28px;height:28px;border-radius:8px;
+    background:var(--clr-primary);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;margin-right:4px;
+  }
+  .top-bar-logo svg{width:16px;height:16px;fill:white}
+
+  /* ── SUBMENU (TOP APP BAR) ── */
+  .submenu-wrapper{position:relative}
+  .submenu{
+    position:absolute;top:calc(100% + 8px);right:0;
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-lg);
+    min-width:200px;
+    overflow:hidden;
+    transform-origin:top right;
+    transform:scale(0.9) translateY(-8px);
+    opacity:0;
+    pointer-events:none;
+    transition:transform var(--transition),opacity var(--transition);
+    z-index:200;
+  }
+  .submenu.open{
+    transform:scale(1) translateY(0);
+    opacity:1;
+    pointer-events:all;
+  }
+  .submenu-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;
+    font-size:14px;font-weight:500;
+    color:var(--clr-text2);
+    cursor:pointer;
+    transition:background var(--transition),color var(--transition);
+    border:none;background:none;width:100%;text-align:left;
+  }
+  .submenu-item:hover{background:var(--clr-surface2);color:var(--clr-text)}
+  .submenu-item svg{width:18px;height:18px;flex-shrink:0;color:var(--clr-text3)}
+  .submenu-item:hover svg{color:var(--clr-primary)}
+  .submenu-divider{height:1px;background:var(--clr-border);margin:4px 0}
+
+  /* ── DRAWER OVERLAY ── */
+  .drawer-overlay{
+    position:fixed;inset:0;
+    background:var(--clr-overlay);
+    z-index:150;
+    opacity:0;pointer-events:none;
+    transition:opacity var(--transition);
+  }
+  .drawer-overlay.open{opacity:1;pointer-events:all}
+
+  /* ── DRAWER ── */
+  .drawer{
+    position:fixed;top:0;left:0;bottom:0;
+    width:var(--drawer-width);
+    background:var(--clr-surface);
+    z-index:160;
+    transform:translateX(-100%);
+    transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-header{
+    padding:56px 20px 20px;
+    background:linear-gradient(135deg,var(--clr-primary-light) 0%,var(--clr-surface) 100%);
+    border-bottom:1px solid var(--clr-border);
+  }
+  .drawer-avatar{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--clr-primary);
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:600;color:white;
+    margin-bottom:12px;
+  }
+  .drawer-name{font-size:16px;font-weight:600;color:var(--clr-text)}
+  .drawer-email{font-size:13px;color:var(--clr-text3);margin-top:2px}
+  .drawer-nav{flex:1;overflow-y:auto;padding:12px 8px}
+  .drawer-section-label{
+    font-size:11px;font-weight:600;
+    color:var(--clr-text3);
+    letter-spacing:0.6px;text-transform:uppercase;
+    padding:16px 12px 6px;
+  }
+  .drawer-item{
+    display:flex;align-items:center;gap:14px;
+    padding:11px 12px;border-radius:var(--radius-md);
+    cursor:pointer;
+    font-size:14px;font-weight:500;
+    color:var(--clr-text2);
+    transition:background var(--transition),color var(--transition);
+    border:none;background:none;width:100%;text-align:left;
+  }
+  .drawer-item svg{width:20px;height:20px;flex-shrink:0;color:var(--clr-text3)}
+  .drawer-item:hover{background:var(--clr-surface2);color:var(--clr-text)}
+  .drawer-item:hover svg{color:var(--clr-primary)}
+  .drawer-item.active{
+    background:var(--clr-primary-light);
+    color:var(--clr-primary);
+    font-weight:600;
+  }
+  .drawer-item.active svg{color:var(--clr-primary)}
+  .drawer-badge{
+    margin-left:auto;
+    background:var(--clr-accent);
+    color:white;
+    font-size:11px;font-weight:600;
+    padding:2px 8px;border-radius:99px;
+  }
+  .drawer-footer{
+    padding:12px 8px;
+    border-top:1px solid var(--clr-border);
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main{
+    padding-top:calc(var(--top-bar) + 16px);
+    padding-bottom:calc(var(--bottom-bar) + 16px);
+    padding-left:16px;padding-right:16px;
+    max-width:640px;margin:0 auto;
+  }
+
+  /* ── TABS CONTENT ── */
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  /* ── SEARCH BAR ── */
+  .search-bar{
+    display:flex;align-items:center;gap:10px;
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-xl);
+    padding:10px 16px;
+    margin-bottom:20px;
+    transition:border-color var(--transition),box-shadow var(--transition);
+  }
+  .search-bar:focus-within{
+    border-color:var(--clr-primary);
+    box-shadow:0 0 0 3px rgba(26,95,74,0.12);
+  }
+  .search-bar input{
+    flex:1;border:none;background:none;
+    font-family:var(--font);font-size:14px;
+    color:var(--clr-text);outline:none;
+  }
+  .search-bar input::placeholder{color:var(--clr-text3)}
+  .search-bar svg{width:18px;height:18px;color:var(--clr-text3);flex-shrink:0}
+
+  /* ── SECTION HEADER ── */
+  .section-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .section-title{font-size:15px;font-weight:600;color:var(--clr-text)}
+  .section-action{
+    font-size:13px;font-weight:500;color:var(--clr-primary);
+    cursor:pointer;background:none;border:none;
+    transition:opacity var(--transition);
+  }
+  .section-action:hover{opacity:0.7}
+
+  /* ── REFRESH BUTTON ── */
+  .refresh-row{
+    display:flex;align-items:center;justify-content:flex-end;
+    margin-bottom:16px;
+    gap:8px;
+  }
+  .refresh-btn{
+    display:flex;align-items:center;gap:6px;
+    padding:8px 14px;border-radius:var(--radius-lg);
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    cursor:pointer;
+    font-family:var(--font);font-size:13px;font-weight:500;
+    color:var(--clr-text2);
+    transition:background var(--transition),color var(--transition),border-color var(--transition),transform 0.15s;
+  }
+  .refresh-btn:hover{background:var(--clr-primary-light);color:var(--clr-primary);border-color:var(--clr-primary)}
+  .refresh-btn:active{transform:scale(0.96)}
+  .refresh-btn svg{width:16px;height:16px;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+  .refresh-btn.spinning svg{transform:rotate(360deg)}
+
+  /* ── CARD ── */
+  .card{
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-lg);
+    padding:16px;
+    margin-bottom:12px;
+    transition:transform var(--transition),box-shadow var(--transition),opacity var(--transition);
+    cursor:pointer;
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:'';
+    position:absolute;inset:0;
+    background:var(--clr-primary-light);
+    opacity:0;
+    transition:opacity var(--transition);
+    pointer-events:none;
+  }
+  .card:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-md);
+  }
+  .card:hover::before{opacity:0.4}
+  .card:active{transform:translateY(0);box-shadow:none}
+
+  /* Ripple effect */
+  .card .ripple{
+    position:absolute;border-radius:50%;
+    background:rgba(26,95,74,0.18);
+    transform:scale(0);
+    animation:ripple-out 0.45s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes ripple-out{
+    to{transform:scale(4);opacity:0}
+  }
+
+  .card-row{display:flex;align-items:flex-start;gap:14px}
+  .card-thumb{
+    width:48px;height:48px;border-radius:var(--radius-md);
+    background:var(--clr-primary-light);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;font-size:22px;
+  }
+  .card-body{flex:1;min-width:0}
+  .card-title{
+    font-size:15px;font-weight:600;
+    color:var(--clr-text);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .card-subtitle{font-size:13px;color:var(--clr-text2);margin-top:2px}
+  .card-meta{
+    display:flex;align-items:center;gap:8px;
+    margin-top:8px;flex-wrap:wrap;
+  }
+  .badge{
+    font-size:11px;font-weight:600;
+    padding:3px 9px;border-radius:99px;
+    display:inline-flex;align-items:center;gap:4px;
+  }
+  .badge-green{background:var(--clr-success-light);color:var(--clr-success)}
+  .badge-amber{background:#FFF3E0;color:#B36500}
+  @media (prefers-color-scheme:dark){
+    .badge-amber{background:#2B1A00;color:#F0A030}
+  }
+  .badge-blue{background:#E8F0FE;color:#1A56DB}
+  @media (prefers-color-scheme:dark){
+    .badge-blue{background:#0D1F40;color:#7EB3F5}
+  }
+  .card-price{
+    font-size:15px;font-weight:600;
+    color:var(--clr-primary);
+    white-space:nowrap;margin-left:auto;
+  }
+  .card-actions{
+    display:flex;gap:8px;
+    margin-top:12px;padding-top:12px;
+    border-top:1px solid var(--clr-border);
+    justify-content:flex-end;
+  }
+  .btn-sm{
+    display:flex;align-items:center;gap:6px;
+    padding:7px 14px;border-radius:var(--radius-md);
+    font-family:var(--font);font-size:13px;font-weight:500;
+    cursor:pointer;transition:all var(--transition);
+    border:1px solid var(--clr-border);
+    background:var(--clr-surface);
+    color:var(--clr-text2);
+  }
+  .btn-sm:hover{background:var(--clr-surface2);color:var(--clr-text)}
+  .btn-sm:active{transform:scale(0.96)}
+  .btn-sm svg{width:15px;height:15px}
+  .btn-danger{border-color:rgba(192,57,43,0.3);color:var(--clr-danger)}
+  .btn-danger:hover{background:var(--clr-danger-light);border-color:var(--clr-danger)}
+  .btn-primary{
+    background:var(--clr-primary);
+    border-color:var(--clr-primary);
+    color:white;
+  }
+  .btn-primary:hover{background:var(--clr-primary-mid);border-color:var(--clr-primary-mid);color:white}
+
+  /* ── DELETE ANIMATION ── */
+  .card.deleting{
+    animation:card-out 0.28s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes card-out{
+    to{opacity:0;transform:translateX(60px) scale(0.96);max-height:0;margin-bottom:0;padding:0;border-width:0}
+  }
+
+  /* ── UNDO SNACKBAR ── */
+  .snackbar{
+    position:fixed;bottom:calc(var(--bottom-bar) + 16px);left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#2A2B28;
+    color:#EEECEA;
+    border-radius:var(--radius-lg);
+    padding:12px 16px;
+    display:flex;align-items:center;gap:12px;
+    font-size:14px;font-weight:500;
+    box-shadow:var(--shadow-lg);
+    z-index:300;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.22s,transform 0.22s cubic-bezier(0.4,0,0.2,1);
+    white-space:nowrap;
+    max-width:calc(100vw - 32px);
+  }
+  .snackbar.visible{
+    opacity:1;pointer-events:all;
+    transform:translateX(-50%) translateY(0);
+  }
+  .snackbar-undo{
+    font-weight:600;color:var(--clr-primary);
+    background:none;border:none;cursor:pointer;
+    font-family:var(--font);font-size:14px;
+    padding:0;margin-left:4px;
+    text-transform:uppercase;letter-spacing:0.4px;
+    transition:opacity var(--transition);
+  }
+  .snackbar-undo:hover{opacity:0.8}
+  .snackbar-progress{
+    position:absolute;bottom:0;left:0;height:3px;
+    background:var(--clr-primary);
+    border-radius:0 0 var(--radius-lg) var(--radius-lg);
+    animation:snackbar-timer 4s linear forwards;
+  }
+  @keyframes snackbar-timer{from{width:100%}to{width:0}}
+
+  /* ── DELETE CONFIRM MODAL ── */
+  .modal-backdrop{
+    position:fixed;inset:0;
+    background:var(--clr-overlay);
+    z-index:250;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    opacity:0;pointer-events:none;
+    transition:opacity var(--transition);
+  }
+  .modal-backdrop.open{opacity:1;pointer-events:all}
+  .modal{
+    background:var(--clr-surface);
+    border-radius:var(--radius-xl);
+    padding:28px 24px;
+    max-width:340px;width:100%;
+    transform:scale(0.92) translateY(16px);
+    transition:transform var(--transition),opacity var(--transition);
+    opacity:0;
+  }
+  .modal-backdrop.open .modal{transform:scale(1) translateY(0);opacity:1}
+  .modal-icon{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--clr-danger-light);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:16px;
+  }
+  .modal-icon svg{width:24px;height:24px;color:var(--clr-danger)}
+  .modal-title{font-size:17px;font-weight:600;color:var(--clr-text);margin-bottom:8px}
+  .modal-desc{font-size:14px;color:var(--clr-text2);line-height:1.6}
+  .modal-actions{display:flex;gap:10px;margin-top:24px}
+  .modal-actions .btn-sm{flex:1;justify-content:center}
+
+  /* ── BOTTOM TAB BAR ── */
+  .bottom-bar{
+    position:fixed;bottom:0;left:0;right:0;
+    height:var(--bottom-bar);
+    background:var(--clr-surface);
+    border-top:1px solid var(--clr-border);
+    display:flex;
+    z-index:100;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .tab-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;border:none;background:none;cursor:pointer;
+    color:var(--clr-text3);
+    font-family:var(--font);font-size:11px;font-weight:500;
+    transition:color var(--transition);
+    padding:8px 4px 12px;
+    position:relative;
+  }
+  .tab-btn svg{
+    width:22px;height:22px;
+    transition:transform var(--transition),color var(--transition);
+  }
+  .tab-btn:hover{color:var(--clr-text2)}
+  .tab-btn:hover svg{transform:translateY(-1px)}
+  .tab-btn.active{color:var(--clr-primary)}
+  .tab-btn.active svg{transform:scale(1.08)}
+  .tab-indicator{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    height:3px;width:32px;border-radius:0 0 4px 4px;
+    background:var(--clr-primary);
+    opacity:0;transition:opacity var(--transition);
+  }
+  .tab-btn.active .tab-indicator{opacity:1}
+  .tab-dot{
+    position:absolute;top:8px;right:20%;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--clr-accent);
+    border:2px solid var(--clr-surface);
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:10px;margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-lg);
+    padding:14px 16px;
+    transition:transform var(--transition),box-shadow var(--transition);
+    cursor:default;
+  }
+  .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .stat-label{font-size:12px;font-weight:500;color:var(--clr-text3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .stat-label svg{width:14px;height:14px}
+  .stat-value{font-size:22px;font-weight:600;color:var(--clr-text)}
+  .stat-change{font-size:12px;font-weight:500;margin-top:4px}
+  .stat-up{color:var(--clr-success)}
+  .stat-down{color:var(--clr-danger)}
+
+  /* ── PROFILE PAGE ── */
+  .profile-hero{
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    margin-bottom:16px;
+    display:flex;flex-direction:column;align-items:center;
+    text-align:center;
+  }
+  .profile-avatar{
+    width:80px;height:80px;border-radius:50%;
+    background:var(--clr-primary);
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:600;color:white;
+    margin-bottom:14px;
+    box-shadow:0 0 0 4px var(--clr-primary-light);
+  }
+  .profile-name{font-size:20px;font-weight:600;color:var(--clr-text)}
+  .profile-role{font-size:14px;color:var(--clr-text2);margin-top:4px}
+  .profile-stats{
+    display:flex;gap:0;margin-top:20px;width:100%;
+    border-top:1px solid var(--clr-border);padding-top:16px;
+  }
+  .profile-stat{flex:1;text-align:center}
+  .profile-stat+.profile-stat{border-left:1px solid var(--clr-border)}
+  .profile-stat-val{font-size:18px;font-weight:600;color:var(--clr-text)}
+  .profile-stat-lbl{font-size:12px;color:var(--clr-text3);margin-top:2px}
+
+  /* ── EMPTY STATE ── */
+  .empty-state{
+    text-align:center;padding:48px 24px;
+    color:var(--clr-text3);
+  }
+  .empty-state svg{width:52px;height:52px;margin-bottom:16px;opacity:0.4}
+  .empty-state p{font-size:15px;font-weight:500;color:var(--clr-text2)}
+  .empty-state small{font-size:13px}
+
+  /* ── SETTINGS ── */
+  .settings-group{
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .settings-item{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition:background var(--transition);
+    border:none;background:none;width:100%;text-align:left;
+    font-family:var(--font);
+  }
+  .settings-item+.settings-item{border-top:1px solid var(--clr-border)}
+  .settings-item:hover{background:var(--clr-surface2)}
+  .settings-item:active{background:var(--clr-surface2)}
+  .settings-icon{
+    width:36px;height:36px;border-radius:var(--radius-md);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .settings-icon svg{width:18px;height:18px}
+  .settings-text{flex:1}
+  .settings-label{font-size:14px;font-weight:500;color:var(--clr-text)}
+  .settings-sub{font-size:12px;color:var(--clr-text3);margin-top:1px}
+  .settings-chevron{width:16px;height:16px;color:var(--clr-text3)}
+  .toggle{
+    position:relative;width:44px;height:24px;flex-shrink:0;
+  }
+  .toggle input{opacity:0;width:0;height:0;position:absolute}
+  .toggle-track{
+    position:absolute;inset:0;
+    background:var(--clr-border);
+    border-radius:99px;
+    transition:background var(--transition);
+    cursor:pointer;
+  }
+  .toggle input:checked~.toggle-track{background:var(--clr-primary)}
+  .toggle-thumb{
+    position:absolute;top:3px;left:3px;
+    width:18px;height:18px;border-radius:50%;
+    background:white;
+    box-shadow:var(--shadow-sm);
+    transition:transform var(--transition);
+    pointer-events:none;
+  }
+  .toggle input:checked~.toggle-track .toggle-thumb{transform:translateX(20px)}
+
+  /* ── CARD SKELETON ── */
+  .skeleton{
+    background:linear-gradient(90deg,var(--clr-surface2) 25%,var(--clr-surface) 50%,var(--clr-surface2) 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s infinite;
+    border-radius:var(--radius-md);
+  }
+  @keyframes shimmer{
+    0%{background-position:200% 0}
+    100%{background-position:-200% 0}
+  }
+  .skeleton-card{
+    background:var(--clr-surface);
+    border:1px solid var(--clr-border);
+    border-radius:var(--radius-lg);
+    padding:16px;margin-bottom:12px;
+  }
+  .skeleton-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .sk-avatar{width:48px;height:48px;border-radius:var(--radius-md);flex-shrink:0}
+  .sk-line{height:14px;margin-bottom:8px}
+  .sk-line-sm{height:12px;width:60%}
+
+  /* ── FAB ── */
+  .fab{
+    position:fixed;
+    bottom:calc(var(--bottom-bar) + 20px);
+    right:20px;
+    width:54px;height:54px;border-radius:50%;
+    background:var(--clr-primary);
+    border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow-md);
+    z-index:90;
+    transition:transform var(--transition),box-shadow var(--transition);
+  }
+  .fab:hover{transform:scale(1.08);box-shadow:var(--shadow-lg)}
+  .fab:active{transform:scale(0.96)}
+  .fab svg{width:24px;height:24px;color:white}
+
+  /* Focus visible */
+  :focus-visible{
+    outline:2px solid var(--clr-primary);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     TOP APP BAR
+═══════════════════════════════════ -->
+<header class="top-bar" role="banner">
+  <button class="icon-btn" id="burgerBtn" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="drawer">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="top-bar-logo" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6 2 2 6 2 12s4 10 10 10 10-4 10-10S18 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+  </div>
+
+  <span class="top-bar-title" id="pageTitle">Beranda</span>
+
+  <button class="icon-btn" aria-label="Cari">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  </button>
+
+  <div class="submenu-wrapper">
+    <button class="icon-btn" id="submenuBtn" aria-label="Opsi lainnya" aria-expanded="false" aria-haspopup="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+      </svg>
+    </button>
+    <div class="submenu" id="submenu" role="menu" aria-label="Menu tambahan">
+      <button class="submenu-item" role="menuitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Edit tampilan
+      </button>
+      <button class="submenu-item" role="menuitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Ubah tata letak
+      </button>
+      <div class="submenu-divider" role="separator"></div>
+      <button class="submenu-item" role="menuitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Ekspor data
+      </button>
+      <button class="submenu-item" role="menuitem" style="color:var(--clr-danger)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color:var(--clr-danger)"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        Hapus semua
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════
+     DRAWER OVERLAY
+═══════════════════════════════════ -->
+<div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+
+<!-- ═══════════════════════════════════
+     NAVIGATION DRAWER
+═══════════════════════════════════ -->
+<nav class="drawer" id="drawer" aria-label="Menu utama" aria-hidden="true">
+  <div class="drawer-header">
+    <div class="drawer-avatar" aria-hidden="true">AR</div>
+    <div class="drawer-name">Andi Rahmat</div>
+    <div class="drawer-email">andi.rahmat@email.com</div>
+  </div>
+
+  <div class="drawer-nav" role="list">
+    <div class="drawer-section-label">Menu Utama</div>
+
+    <button class="drawer-item active" role="listitem" data-tab="home" onclick="switchTab('home');closeDrawer()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Beranda
+    </button>
+
+    <button class="drawer-item" role="listitem" data-tab="explore" onclick="switchTab('explore');closeDrawer()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      Jelajahi
+      <span class="drawer-badge">5</span>
+    </button>
+
+    <button class="drawer-item" role="listitem" data-tab="saved" onclick="switchTab('saved');closeDrawer()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      Tersimpan
+    </button>
+
+    <button class="drawer-item" role="listitem" data-tab="profile" onclick="switchTab('profile');closeDrawer()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profil
+    </button>
+
+    <div class="drawer-section-label">Lainnya</div>
+
+    <button class="drawer-item" role="listitem" data-tab="settings" onclick="switchTab('settings');closeDrawer()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Pengaturan
+    </button>
+
+    <button class="drawer-item" role="listitem">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      Bantuan
+    </button>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="drawer-item" role="listitem" style="color:var(--clr-danger)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="color:var(--clr-danger)"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Keluar
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════ -->
+<main class="main" id="mainContent">
+
+  <!-- TAB: BERANDA -->
+  <div class="tab-content active" id="tab-home" role="tabpanel" aria-label="Beranda">
+    <div class="refresh-row">
+      <span style="font-size:13px;color:var(--clr-text3)">Terakhir diperbarui: <span id="lastUpdated">baru saja</span></span>
+      <button class="refresh-btn" id="refreshBtn" aria-label="Perbarui data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Segarkan
+      </button>
+    </div>
+
+    <div class="stats-grid" aria-label="Statistik ringkas">
+      <div class="stat-card" tabindex="0">
+        <div class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Total Proyek
+        </div>
+        <div class="stat-value">24</div>
+        <div class="stat-change stat-up">↑ 3 minggu ini</div>
+      </div>
+      <div class="stat-card" tabindex="0">
+        <div class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Anggota Tim
+        </div>
+        <div class="stat-value">8</div>
+        <div class="stat-change stat-up">↑ 1 baru</div>
+      </div>
+      <div class="stat-card" tabindex="0">
+        <div class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Selesai
+        </div>
+        <div class="stat-value">18</div>
+        <div class="stat-change stat-down">↓ 2 tertunda</div>
+      </div>
+      <div class="stat-card" tabindex="0">
+        <div class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Pendapatan
+        </div>
+        <div class="stat-value">12jt</div>
+        <div class="stat-change stat-up">↑ 8%</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Proyek Terbaru</h2>
+      <button class="section-action" onclick="switchTab('explore')">Lihat semua</button>
+    </div>
+
+    <div id="homeCardList">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+
+  <!-- TAB: JELAJAHI -->
+  <div class="tab-content" id="tab-explore" role="tabpanel" aria-label="Jelajahi">
+    <div class="search-bar" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" placeholder="Cari proyek, tugas, tim…" aria-label="Cari proyek">
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Semua Proyek</h2>
+      <span style="font-size:13px;color:var(--clr-text3)" id="exploreCount"></span>
+    </div>
+
+    <div id="exploreCardList"></div>
+  </div>
+
+  <!-- TAB: TERSIMPAN -->
+  <div class="tab-content" id="tab-saved" role="tabpanel" aria-label="Tersimpan">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      <p>Belum ada item tersimpan</p>
+      <small>Tandai proyek favorit untuk muncul di sini</small>
+    </div>
+  </div>
+
+  <!-- TAB: PROFIL -->
+  <div class="tab-content" id="tab-profile" role="tabpanel" aria-label="Profil">
+    <div class="profile-hero">
+      <div class="profile-avatar" aria-hidden="true">AR</div>
+      <div class="profile-name">Andi Rahmat</div>
+      <div class="profile-role">Senior Product Designer · Jakarta</div>
+      <div class="profile-stats" aria-label="Statistik profil">
+        <div class="profile-stat">
+          <div class="profile-stat-val">24</div>
+          <div class="profile-stat-lbl">Proyek</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val">8</div>
+          <div class="profile-stat-lbl">Tim</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val">142</div>
+          <div class="profile-stat-lbl">Tugas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Aktivitas Terkini</h2>
+    </div>
+
+    <div class="card" tabindex="0">
+      <div class="card-row">
+        <div class="card-thumb">📋</div>
+        <div class="card-body">
+          <div class="card-title">Menyelesaikan desain wireframe</div>
+          <div class="card-subtitle">Proyek Nusantara App · 2 jam lalu</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" tabindex="0">
+      <div class="card-row">
+        <div class="card-thumb">💬</div>
+        <div class="card-body">
+          <div class="card-title">Menambahkan komentar pada sprint</div>
+          <div class="card-subtitle">Tim Development · Kemarin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PENGATURAN -->
+  <div class="tab-content" id="tab-settings" role="tabpanel" aria-label="Pengaturan">
+    <div class="section-header">
+      <h2 class="section-title">Tampilan</h2>
+    </div>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div class="settings-icon" style="background:var(--clr-primary-light)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="settings-text">
+          <div class="settings-label">Mode Terang</div>
+          <div class="settings-sub">Mengikuti pengaturan sistem</div>
+        </div>
+        <label class="toggle" aria-label="Toggle mode terang">
+          <input type="checkbox" checked>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div class="settings-icon" style="background:#F0E8FF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="settings-text">
+          <div class="settings-label">Tata Letak Kompak</div>
+          <div class="settings-sub">Tampilkan lebih banyak konten</div>
+        </div>
+        <label class="toggle" aria-label="Toggle tata letak kompak">
+          <input type="checkbox">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Akun</h2>
+    </div>
+    <div class="settings-group">
+      <button class="settings-item">
+        <div class="settings-icon" style="background:var(--clr-accent-light)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--clr-accent)" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="settings-text">
+          <div class="settings-label">Edit Profil</div>
+          <div class="settings-sub">Nama, foto, kontak</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="settings-item">
+        <div class="settings-icon" style="background:#E8F4FD">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A56DB" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="settings-text">
+          <div class="settings-label">Keamanan</div>
+          <div class="settings-sub">Kata sandi & autentikasi</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Tentang</h2>
+    </div>
+    <div class="settings-group">
+      <div class="settings-item">
+        <div class="settings-text">
+          <div class="settings-label">Versi Aplikasi</div>
+          <div class="settings-sub">2.4.1 (Build 240)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════
+     BOTTOM TAB BAR
+═══════════════════════════════════ -->
+<nav class="bottom-bar" role="tablist" aria-label="Navigasi utama">
+  <button class="tab-btn active" role="tab" aria-selected="true" id="tabBtn-home" data-tab="home" onclick="switchTab('home')" aria-controls="tab-home">
+    <div class="tab-indicator" aria-hidden="true"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Beranda
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" id="tabBtn-explore" data-tab="explore" onclick="switchTab('explore')" aria-controls="tab-explore">
+    <div class="tab-indicator" aria-hidden="true"></div>
+    <div class="tab-dot" aria-label="5 item baru"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+    Jelajahi
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" id="tabBtn-saved" data-tab="saved" onclick="switchTab('saved')" aria-controls="tab-saved">
+    <div class="tab-indicator" aria-hidden="true"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    Tersimpan
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" id="tabBtn-profile" data-tab="profile" onclick="switchTab('profile')" aria-controls="tab-profile">
+    <div class="tab-indicator" aria-hidden="true"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profil
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" id="tabBtn-settings" data-tab="settings" onclick="switchTab('settings')" aria-controls="tab-settings">
+    <div class="tab-indicator" aria-hidden="true"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Setelan
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════
+     DELETE CONFIRM MODAL
+═══════════════════════════════════ -->
+<div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+  <div class="modal">
+    <div class="modal-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <div class="modal-title" id="modalTitle">Hapus proyek?</div>
+    <div class="modal-desc" id="modalDesc">Proyek "<span id="deleteTarget"></span>" akan dihapus. Tindakan ini dapat dibatalkan sesaat setelah penghapusan.</div>
+    <div class="modal-actions">
+      <button class="btn-sm" id="cancelDelete">Batal</button>
+      <button class="btn-sm btn-danger" id="confirmDelete">Ya, hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     UNDO SNACKBAR
+═══════════════════════════════════ -->
+<div class="snackbar" id="snackbar" role="status" aria-live="polite" aria-atomic="true">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+  <span id="snackbarText">Proyek dihapus</span>
+  <button class="snackbar-undo" id="undoBtn" aria-label="Batalkan penghapusan">Undo</button>
+  <div class="snackbar-progress" id="snackbarProgress"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+const projectData = [
+  {id:1, emoji:'🌿', title:'Nusantara App', subtitle:'Desain UI/UX · Mobile', badge:'Aktif', badgeClass:'badge-green', tags:['UX','Mobile'], price:'Rp 24jt'},
+  {id:2, emoji:'🏗️', title:'Platform Konstruksi', subtitle:'Backend & Frontend · Web', badge:'Review', badgeClass:'badge-amber', tags:['React','Node'], price:'Rp 42jt'},
+  {id:3, emoji:'📊', title:'Dashboard Analytics', subtitle:'Data Visualisasi · Web App', badge:'Selesai', badgeClass:'badge-blue', tags:['D3.js','Python'], price:'Rp 18jt'},
+  {id:4, emoji:'🎨', title:'Rebrand Startup', subtitle:'Branding & Visual Identity', badge:'Aktif', badgeClass:'badge-green', tags:['Branding','Print'], price:'Rp 11jt'},
+  {id:5, emoji:'🛒', title:'E-Commerce App', subtitle:'Full-stack · iOS & Android', badge:'Review', badgeClass:'badge-amber', tags:['Flutter','Firebase'], price:'Rp 65jt'},
+];
+
+let cards = [...projectData];
+let pendingDeleteId = null;
+let undoCard = null;
+let snackTimeout = null;
+
+// ═══════════════════════════════════
+// RENDER CARDS
+// ═══════════════════════════════════
+function createCardHTML(c, listId) {
+  return `
+  <div class="card" id="card-${listId}-${c.id}" tabindex="0"
+       role="article" aria-label="${c.title}"
+       onmousedown="addRipple(event,this)"
+       onkeydown="if(event.key==='Enter')this.click()">
+    <div class="card-row">
+      <div class="card-thumb" aria-hidden="true">${c.emoji}</div>
+      <div class="card-body">
+        <div class="card-title">${c.title}</div>
+        <div class="card-subtitle">${c.subtitle}</div>
+        <div class="card-meta">
+          <span class="badge ${c.badgeClass}">${c.badge}</span>
+          ${c.tags.map(t=>`<span class="badge" style="background:var(--clr-surface2);color:var(--clr-text2)">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card-price">${c.price}</div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-sm" onclick="event.stopPropagation();alert('Detail ${c.title}')" aria-label="Lihat detail ${c.title}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Detail
+      </button>
+      <button class="btn-sm btn-danger" onclick="event.stopPropagation();openDeleteModal(${c.id},'${c.title}')" aria-label="Hapus ${c.title}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+        Hapus
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderCards() {
+  const homeList = document.getElementById('homeCardList');
+  const exploreList = document.getElementById('exploreCardList');
+  const exploreCount = document.getElementById('exploreCount');
+
+  const showHome = cards.slice(0, 3);
+  homeList.innerHTML = showHome.length
+    ? showHome.map(c => createCardHTML(c,'home')).join('')
+    : `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><p>Tidak ada proyek</p><small>Tambahkan proyek baru untuk memulai</small></div>`;
+
+  exploreList.innerHTML = cards.length
+    ? cards.map(c => createCardHTML(c,'explore')).join('')
+    : `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><p>Daftar kosong</p></div>`;
+
+  if (exploreCount) exploreCount.textContent = `${cards.length} proyek`;
+}
+
+// ═══════════════════════════════════
+// RIPPLE EFFECT
+// ═══════════════════════════════════
+function addRipple(e, el) {
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  const size = Math.max(el.offsetWidth, el.offsetHeight);
+  const rect = el.getBoundingClientRect();
+  r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 500);
+}
+
+// ═══════════════════════════════════
+// DRAWER
+// ═══════════════════════════════════
+function openDrawer() {
+  const d = document.getElementById('drawer');
+  const o = document.getElementById('drawerOverlay');
+  const b = document.getElementById('burgerBtn');
+  d.classList.add('open');
+  o.classList.add('open');
+  d.removeAttribute('aria-hidden');
+  b.setAttribute('aria-expanded','true');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer() {
+  const d = document.getElementById('drawer');
+  const o = document.getElementById('drawerOverlay');
+  const b = document.getElementById('burgerBtn');
+  d.classList.remove('open');
+  o.classList.remove('open');
+  d.setAttribute('aria-hidden','true');
+  b.setAttribute('aria-expanded','false');
+  document.body.style.overflow='';
+}
+
+document.getElementById('burgerBtn').addEventListener('click', () => {
+  const d = document.getElementById('drawer');
+  d.classList.contains('open') ? closeDrawer() : openDrawer();
+});
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+// ═══════════════════════════════════
+// SUBMENU
+// ═══════════════════════════════════
+const submenuBtn = document.getElementById('submenuBtn');
+const submenu = document.getElementById('submenu');
+
+submenuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = submenu.classList.toggle('open');
+  submenuBtn.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', () => {
+  submenu.classList.remove('open');
+  submenuBtn.setAttribute('aria-expanded','false');
+});
+submenu.addEventListener('click', e => {
+  if(e.target.closest('.submenu-item')) {
+    submenu.classList.remove('open');
+    submenuBtn.setAttribute('aria-expanded','false');
+  }
+});
+
+// ═══════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════
+const pageTitles = {
+  home:'Beranda', explore:'Jelajahi', saved:'Tersimpan',
+  profile:'Profil', settings:'Pengaturan'
+};
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-selected','false');
+  });
+  document.querySelectorAll('.drawer-item[data-tab]').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  const content = document.getElementById('tab-'+tab);
+  const tabBtn = document.getElementById('tabBtn-'+tab);
+  const drawerItem = document.querySelector(`.drawer-item[data-tab="${tab}"]`);
+
+  if(content) content.classList.add('active');
+  if(tabBtn) { tabBtn.classList.add('active'); tabBtn.setAttribute('aria-selected','true'); }
+  if(drawerItem) drawerItem.classList.add('active');
+
+  document.getElementById('pageTitle').textContent = pageTitles[tab] || tab;
+}
+
+// ═══════════════════════════════════
+// DELETE MODAL
+// ═══════════════════════════════════
+function openDeleteModal(id, title) {
+  pendingDeleteId = id;
+  document.getElementById('deleteTarget').textContent = title;
+  const modal = document.getElementById('deleteModal');
+  modal.classList.add('open');
+  document.getElementById('confirmDelete').focus();
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+  pendingDeleteId = null;
+}
+
+document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
+document.getElementById('deleteModal').addEventListener('click', e => {
+  if(e.target === document.getElementById('deleteModal')) closeDeleteModal();
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') {
+    closeDeleteModal();
+    closeDrawer();
+    submenu.classList.remove('open');
+  }
+});
+
+document.getElementById('confirmDelete').addEventListener('click', () => {
+  const id = pendingDeleteId;
+  if(!id) return;
+  closeDeleteModal();
+
+  // Animate out all instances of this card
+  document.querySelectorAll(`[id^="card-"][id$="-${id}"]`).forEach(el => {
+    el.classList.add('deleting');
+  });
+
+  const idx = cards.findIndex(c => c.id === id);
+  undoCard = { card: cards[idx], index: idx };
+  cards.splice(idx, 1);
+
+  setTimeout(() => {
+    renderCards();
+    showSnackbar(`"${undoCard.card.title}" dihapus`);
+  }, 290);
+});
+
+// ═══════════════════════════════════
+// SNACKBAR / UNDO
+// ═══════════════════════════════════
+function showSnackbar(text) {
+  clearTimeout(snackTimeout);
+  const sb = document.getElementById('snackbar');
+  const prog = document.getElementById('snackbarProgress');
+  document.getElementById('snackbarText').textContent = text;
+
+  // Reset animation
+  prog.style.animation = 'none';
+  prog.offsetHeight; // reflow
+  prog.style.animation = '';
+
+  sb.classList.add('visible');
+
+  snackTimeout = setTimeout(() => {
+    sb.classList.remove('visible');
+    undoCard = null;
+  }, 4000);
+}
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  clearTimeout(snackTimeout);
+  document.getElementById('snackbar').classList.remove('visible');
+  if(undoCard) {
+    cards.splice(undoCard.index, 0, undoCard.card);
+    undoCard = null;
+    renderCards();
+  }
+});
+
+// ═══════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════
+const refreshBtn = document.getElementById('refreshBtn');
+refreshBtn.addEventListener('click', () => {
+  refreshBtn.classList.add('spinning');
+  refreshBtn.disabled = true;
+
+  // Skeleton loading
+  const homeList = document.getElementById('homeCardList');
+  homeList.innerHTML = `
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton sk-avatar"></div><div style="flex:1"><div class="skeleton sk-line" style="width:70%"></div><div class="skeleton sk-line-sm"></div></div></div><div class="skeleton sk-line" style="width:45%"></div></div>
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton sk-avatar"></div><div style="flex:1"><div class="skeleton sk-line" style="width:80%"></div><div class="skeleton sk-line-sm"></div></div></div><div class="skeleton sk-line" style="width:55%"></div></div>
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton sk-avatar"></div><div style="flex:1"><div class="skeleton sk-line" style="width:65%"></div><div class="skeleton sk-line-sm"></div></div></div><div class="skeleton sk-line" style="width:40%"></div></div>
+  `;
+
+  setTimeout(() => {
+    refreshBtn.classList.remove('spinning');
+    refreshBtn.disabled = false;
+    cards = [...projectData];
+    renderCards();
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent =
+      now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }, 1600);
+});
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+renderCards();
+</script>
+</body>
+</html>
